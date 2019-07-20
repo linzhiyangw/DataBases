@@ -1,0 +1,70 @@
+php -m | grep -i redis  检查是否安装
+phpize 检查php配置信息
+
+ ls /usr/lib64/php/modules/
+curl.so json.so  redis.so fileinfo.so  phar.so  zip.so
+
+vim /etc/php.ini  修改配置文件
+extension_dir = "/usr/lib64/php/modules/"  修改调用文件路径
+extension = "redis.so"    调用模块名
+
+php -m | grep redis   检查是否支持模块
+测试连接redis服务
+在52编写 连接服务,存储变量
+vim /usr/local/nginx/html/save.php  添加存储数据脚本
+<?php
+$redis = new redis();
+$redis->connect('192.168.4.50',6350);
+$redis->auth("123456");
+$redis->set('linux','redhat');  存储变量linux
+?>
+vim /usr/local/nginx/html/get.php 添加获取数据脚本
+<?php
+$redis = new redis();
+$redis->connect('192.168.4.50',6350);
+$redis->auth("123456");
+echo $redis->get("linux"); 取linux变量
+?>
+获取 存储 脚本
+<?php
+$redis = new redis();
+$redis->connect('192.168.4.50',6350);
+$redis->auto("123456")
+$redis->set('dc','666666');
+echo $redis->get('dc');
+?>
+
+curl http://localhost/save.php  执行脚本存数据
+redis-cli -h 192.168.4.50 -p 6350 -a 123456 在52连接50 查看
+
+[root@mysql51 ~]# curl http://192.168.4.52/get.php  获取变量数据
+redhat[root@mysql51 ~]# 
+
+[root@mysql52 lnmp]# curl http://localhost/linkredis.php
+666666[root@mysql52 lnmp]# 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
