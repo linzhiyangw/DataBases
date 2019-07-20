@@ -1,0 +1,12 @@
+配置集群的文件
+[root@mysql52 lnmp]# sed -n '70p;93p;815p;823p;829p;501p' /etc/redis/6379.conf 
+bind 127.0.0.1  ip  修改ip地址
+port 6379    修改端口号
+# requirepass foobared  密码无需设置,有设置的注释掉
+# cluster-enabled yes    启用集群功能
+# cluster-config-file nodes-6379.conf   存储集群信息文件
+# cluster-node-timeout 15000     连接超时时间单位毫秒
+/etc/init.d/redis_6379 restart 重启服务
+rm -rf /var/lib/redis/6379/*   删除所有数据
+redis-cli -h IP地址 -p 端口号  连接测试
+
