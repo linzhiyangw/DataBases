@@ -1,0 +1,19 @@
+192.168.4.52:6352>slaveof 192.168.4.51 6351 设定为51的从服务器  临时配置 
+vim /etc/redis/6379.conf  修改配置文件
+282  slaveof 192.168.4.51 6351   永久配置 配置完重启服务
+info replication 查看主从信息
+一主多从配置一样
+把从服务器恢复为独立的数据库服务器
+192.168.4.53:6353> slave no one  临时恢复 重启服务恢复
+永久恢复的方法 将配置文件注释   282  #slaveof 192.168.4.51 6351
+
+配置带验证(主服务器有连接密码)的主从复制
+vim /etc/redis/6379.conf 修改配置文件
+501  requirepass 123456   开启密码验证
+vim /etc/init.d/redis_6379   注意修改脚本
+$CLIEXEC -h 192.168.4.51 -p 6351 -a 123456 shutdown   添加密码
+从服务器添加验证
+vim /etc/redis/6379.conf
+289 masterauth 123456
+
+master_link_status:up
