@@ -52,6 +52,7 @@ rebalance 平均分配 hash slots
 /etc/init.d/redis_6379 stop
 rm -rf /var/lib/redis/6379/*
 /etc/init.d/redis_6379 start 
+插槽忙 需要   192.168.4.53:6353> cluster reset    重置集群信息
 
 访问集群
 redis-cli -c -h 192.168.4.57 -p 6357  任意访问集群中的任意一台
