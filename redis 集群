@@ -1,4 +1,5 @@
 配置集群的文件
+配置51~56
 [root@mysql52 lnmp]# sed -n '70p;93p;815p;823p;829p;501p' /etc/redis/6379.conf 
 bind 127.0.0.1  ip  修改ip地址
 port 6379    修改端口号
@@ -9,4 +10,89 @@ port 6379    修改端口号
 /etc/init.d/redis_6379 restart 重启服务
 rm -rf /var/lib/redis/6379/*   删除所有数据
 redis-cli -h IP地址 -p 端口号  连接测试
+如果不能正常启动,查看/etc/init.d/redis_6379 脚本内容 提示pid文件时 请删除
+
+0~16338 hash slot
+部署管理主机,可以部署在任意一台redis服务器上
+部署ruby脚本运行环境
+yum -y install ruby
+which ruby
+which gem
+rpm -qf /usr/bin/gem
+gem install redis-3.2.1.gem
+
+mkdir /root/bin
+tar -xf redis-4.0.8.tar.gz
+cp redis/redis-4.0.8/src/redis-trib.rb /root/bin
+chmod +x /root/bin/redis-trib.rb
+redis-trib.rb  --help
+创建集群 三主-三从 至少6台
+create 创建集群
+check  查看集群
+info   查看集群信息
+reshard   重新分片
+del-node  删除主机
+add-node --slave  添加slave 
+add-node  添加master 主机
+rebalance 平均分配 hash slots
+
+[root@mysql51 ~]# redis-trib.rb create --replicas 1 \
+> 192.168.4.51:6351 192.168.4.52:6352 \
+> 192.168.4.53:6353 192.168.4.54:6354 \
+> 192.168.4.55:6355 192.168.4.56:6356 \
+> 192.168.4.57:6357 192.168.4.58:6358
+
+[root@mysql51 ~]# redis-trib.rb info 192.168.4.51:6351
+192.168.4.51:6351 (5d926092...) -> 0 keys | 4096 slots | 1 slaves.  
+192.168.4.54:6354 (843d73c2...) -> 0 keys | 4096 slots | 1 slaves.
+192.168.4.53:6353 (f2a39a81...) -> 0 keys | 4096 slots | 1 slaves.
+192.168.4.52:6352 (05f1d000...) -> 0 keys | 4096 slots | 1 slaves.
+
+如果创建不成功,请注意集群的文件是否清空 /var/lib/redis/6379/*  
+/etc/init.d/redis_6379 stop
+rm -rf /var/lib/redis/6379/*
+/etc/init.d/redis_6379 start 
+
+访问集群
+redis-cli -c -h 192.168.4.57 -p 6357  任意访问集群中的任意一台
+192.168.4.52:6352> cluster info  查看集群信息
+当存取的时候获取变量名和内置的crc16算法做hash计算 计算后会得到一个数字,然后就会用数字和16384取余运算,根据余数的值找对应的redis服务器存储数据
+,对应的slots
+ 
+redis-trib.rb check 192.168.4.51:6351   检查集群信息
+redis-trib.rb info 192.168.4.51:6351    检查主从信息
+
+测试集群的高可用功能
+当主服务器故障,从服务器会自动接替主服务器,继续工作
+把主服务器的redis服务停止.对应的从服务器会自动升级为主服务器
+宕机的主服务器的redis服务运行后,自动做当前主服务器的从库,并自动同步宕机期间产生的新数据
+
+tian jia xin d master fuwuqi
+redis-trib.rb add-node --slave 192.168.4.57:6357 192.168.4.51:6351
+chongxin fen pian
+redis-trib.rb reshard  192.168.4.51:6351
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
