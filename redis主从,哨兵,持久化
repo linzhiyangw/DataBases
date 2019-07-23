@@ -1,0 +1,120 @@
+192.168.4.52:6352>slaveof 192.168.4.51 6351 设定为51的从服务器  临时配置 
+vim /etc/redis/6379.conf  修改配置文件
+282  slaveof 192.168.4.51 6351   永久配置 配置完重启服务
+info replication 查看复制信息
+一主多从配置一样
+把从服务器恢复为独立的数据库服务器
+192.168.4.53:6353> slave no one  临时恢复 重启服务恢复
+永久恢复的方法 将配置文件注释   282  #slaveof 192.168.4.51 6351
+
+配置带验证(主服务器有连接密码)的主从复制
+vim /etc/redis/6379.conf 修改配置文件
+501  requirepass 123456   开启密码验证
+vim /etc/init.d/redis_6379   注意修改脚本
+$CLIEXEC -h 192.168.4.51 -p 6351 -a 123456 shutdown   添加密码
+从服务器添加验证
+vim /etc/redis/6379.conf
+289 masterauth 123456
+
+master_link_status:up
+
+哨兵服务 
+监视master,发现master宕机后,将从服务器升级为主服务器,为了节省服务器可以配置从服务器上,也可以单独配置
+主配置文价 sentinel.conf
+创建主配置文件
+vim /etc/sentinel.conf  注意需要配置执行权限
+
+bind 0.0.0.0 所有地址  
+port 26379   默认端口
+sentinel monitor mysql52(主机名) 192.168.4.52(master服务器IP) 6352(端口) 1(哨兵的数量)
+#sentinel auth-pass 123456   连接密码,如没配置密码验证则无需配置
+
+redis-sentinel /etc/sentinel.conf  启用哨兵监控
+主从同步加哨兵实现高可用
+一主多从,主宕机,如有密码验证,重新分配主,从是无法主的从的,因为从的连接密码是前一台主的连接密码
+
+持久化
+redis服务把内存里的数据,保存到硬盘的方式
+1.RDB
+2.AOF
+
+dump.rdb   数据快照存放文件
+按照指定的时间间隔,将内存的数据集快照写入硬盘  快照的术语:snapshot   恢复时文件直接读入内存
+时间间隔可以修改
+ 219 save 900 1     15分钟且有一个key变化  条件达成则将内存的数据存到硬盘里,不达成则不执行
+ 220 save 300 10     5分钟且有10key改变
+ 221 save 60 10000   1分钟且有10000个key改变   
+
+
+ 254 dbfilename dump.rdb  定义RDB文件名   /var/lib/redis/6379/dump.rdb
+ 使用RDB文件恢复数据
+ cp /var/lib/redis/6379/  /root/dump.rdb  备份数据
+ 恢复数据
+ /etc/init.d/redis_6379 stop  先停止服务
+ rm -rf /var/lib/redis/6379/*  再将原来的数据删除
+ cp /root/dump.rdb /var/lib/redis/6379/  在将数据复制到目录下
+ /etc/init.d/redis_6379 start   启动服务
+ redis-cli -h  登录查看  keys *
+ 
+ 
+ 
+ AOP  Append Only File
+追加方式记录写操作的文件
+
+
+启用 AOP命令
+config set appendonly yes
+config rewrite
+
+登录修改
+192.168.4.51:6351> config set appendonly yes  启用
+OK
+192.168.4.51:6351> config rewrite    写进配置文件
+OK 
+192.168.4.51:6351> 
+
+ vim /etc/redis/6379.conf
+ 673 appendonly yes   可以进入配置文件修改
+ 677 appendfilename "appendonly.aof"
+ 
+/var/lib/redis/6379/appendonly.aof
+
+AOP数据恢复
+
+ [root@mysql51 ~]# scp /var/lib/redis/6379/appendonly.aof   root@192.168.4.53:/root/  将AOP文件发给恢复主机
+ [root@mysql53 ~]# /etc/init.d/redis_6379 stop     将53主机服务停止 
+ vim /etc/redis/6379.conf   修改配置文件  
+ 673 appendonly yes   启用AOP
+  rm -rf /var/lib/redis/6379/*   将数据删除
+  cp /root/appendonly.aof  /var/lib/redis/6379/   将文件复制到目录下
+  /etc/init.d/redis_6379 start   开启服务
+  [root@mysql53 ~]# redis-cli -h 192.168.4.53 -p 6353   登录查看
+192.168.4.53:6353> keys *
+
+
+
+
+                         
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
