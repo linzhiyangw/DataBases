@@ -111,6 +111,12 @@ redis-check-aof --fix /var/lib/redis/6379/appendonly.aof  如果文本内容存�
 AOF优点:可以灵活设置持久方式,出现意外宕机时,仅可能丢失一秒的数据
 AOF缺点:持久化文件的体积通常会大于RDB方式,执行fsync策略的速度可能会比RDB方式慢
 
+数据类型
+String字符串
+
+
+setbit key offset value 
+
 
 
 
