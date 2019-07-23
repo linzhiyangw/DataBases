@@ -58,7 +58,7 @@ dump.rdb   数据快照存放文件
  
  
  
- AOP  Append Only File
+ AOF  Append Only File
 追加方式记录写操作的文件
 
 
@@ -79,7 +79,7 @@ OK
  
 /var/lib/redis/6379/appendonly.aof
 
-AOP数据恢复
+AOF数据恢复
 
  [root@mysql51 ~]# scp /var/lib/redis/6379/appendonly.aof   root@192.168.4.53:/root/  将AOP文件发给恢复主机
  [root@mysql53 ~]# /etc/init.d/redis_6379 stop     将53主机服务停止 
@@ -90,6 +90,7 @@ AOP数据恢复
   /etc/init.d/redis_6379 start   开启服务
   [root@mysql53 ~]# redis-cli -h 192.168.4.53 -p 6353   登录查看
 192.168.4.53:6353> keys *
+
 
 
 
