@@ -91,6 +91,22 @@ AOF数据恢复
   [root@mysql53 ~]# redis-cli -h 192.168.4.53 -p 6353   登录查看
 192.168.4.53:6353> keys *
 
+优化配置
+appendfsync   always    实时记录,并完成磁盘同步
+appendfsync   everysec  每秒记录一次,并完成磁盘同步
+appendfsync   no        写入aof,不执行磁盘同步
+
+日志文件会不断增大,何时触发日志重写
+
+744 auto-aof-rewrite-percentage 100  再次重写,增长百分比
+745 auto-aof-rewrite-min-size 64mb   首次重写触发值,大小达到64mb就会触发,进行缩减
+
+修复AOF文件   /var/lib/redis/6379/appendonly.aof
+
+redis-check-aof --fix /var/lib/redis/6379/appendonly.aof  如果文本内容存在不相关的字母会导致文本错误
+
+AOF优点:可以灵活设置持久方式,出现意外宕机时,仅可能丢失一秒的数据
+AOF缺点:持久化文件的体积通常会大于RDB方式,执行fsync策略的速度可能会比RDB方式慢
 
 
 
