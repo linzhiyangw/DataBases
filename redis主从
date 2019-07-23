@@ -17,3 +17,40 @@ vim /etc/redis/6379.conf
 289 masterauth 123456
 
 master_link_status:up
+
+哨兵服务 
+监视master,发现master宕机后,将从服务器升级为主服务器,为了节省服务器可以配置从服务器上,也可以单独配置
+主配置文价 sentinel.conf
+创建主配置文件
+vim /etc/sentinel.conf  注意需要配置执行权限
+
+bind 0.0.0.0 所有地址  
+port 26379   默认端口
+sentinel monitor mysql52(主机名) 192.168.4.52(master服务器IP) 6352(端口) 1(哨兵的数量)
+#sentinel auth-pass 123456   连接密码,如没配置密码验证则无需配置
+
+
+                         
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
