@@ -72,10 +72,18 @@ redis-trib.rb info 192.168.4.51:6351    检查主从信息
 redis-trib.rb add-node  192.168.4.57:6357 192.168.4.51:6351
 重新分片
 redis-trib.rb reshard  192.168.4.51:6351
+How many slots do you want to move (from 1 to 16384)? 4096   移出hash槽主机id
+What is the receiving node ID? bebd8c8368c9892344ec7b872e88d2112960e3a3   接受hash槽主机id
+Please enter all the source node IDs.
+  Type 'all' to use all the nodes as source nodes for the hash slots.
+  Type 'done' once you entered all the source nodes IDs.
+Source node #1:all    移除hash槽主机id  all所有主机中取出 
+
 自动平均分片
 redis-trib.rb rebalance 192.168.4.52:6352
 分片的时候如果有某个变量存在某个槽里,分到新的主服务器上,数据也会被分过去,添加从服务器的时候,也会被从服务器同步过去
 添加新的从服务器58
+
 redis-trib.rb add-node --slave 192.168.4.58:6358 192.168.4.51:6351  
 如果不指定主服务器,会自动添加到从服务器最少的主服务器,如果都一样就会随机添加
 
